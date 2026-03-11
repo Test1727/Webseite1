@@ -286,6 +286,10 @@ section {
     margin-bottom: 1rem;
 }
 
+.about-details .detail-item:last-child {
+    margin-top: 4rem;  /* ← Zusätzlicher Abstand vor "Interessen" */
+}
+
 .about-details ul li {
     margin-bottom: 0.5rem;
     font-size: 1rem;
