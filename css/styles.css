@@ -203,7 +203,7 @@ section {
     height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, rgba(10, 36, 99, 0.05), rgba(192, 192, 192, 0.2)); /* Deep blue to silver gradient */
+    background: linear-gradient(120deg, #f5f7fc 0%, #e9edf8 100%);
     position: relative;
     overflow: hidden; /* For particles canvas */
 }
