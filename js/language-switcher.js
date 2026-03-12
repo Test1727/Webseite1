@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function updatePageLanguage() {
         alert('6. updatePageLanguage() wird ausgeführt');
         
+        // NEUE TESTS:
+        alert('Aktuelle Sprache: ' + currentLanguage);
+        alert('translations vorhanden: ' + (typeof translations !== 'undefined'));
+        if (typeof translations !== 'undefined') {
+            alert('Deutsche Texte: ' + (translations.de ? 'ja' : 'nein'));
+            alert('Englische Texte: ' + (translations.en ? 'ja' : 'nein'));
+        }
+        
         // HTML-Attribut für Dokumentsprache aktualisieren
         document.documentElement.lang = currentLanguage;
         
@@ -66,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateFooter();
     }
     
-    // Hilfsfunktionen hier drin behalten...
+    // Hilfsfunktionen
     function updateFormElements() {
         // Formular-Labels
         const nameLabel = document.querySelector('label[for="contact-name"]');
