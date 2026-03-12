@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isIOS || isSafari) {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     }
-
     
     // Übersetzungsfunktion für das Modal
     function updateModalTranslations(lang) {
@@ -39,126 +38,102 @@ document.addEventListener('DOMContentLoaded', function() {
     resumeBtn.addEventListener('click', function(e) {
         e.preventDefault();
         modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Verhindert Scrollen im Hintergrund
+        document.body.style.overflow = 'hidden';
         
-        // Aktualisiere Übersetzungen basierend auf der aktuellen Sprache
         const currentLang = document.documentElement.getAttribute('lang') || 'de';
         updateModalTranslations(currentLang);
         
-        // Sanfte Einblendung
         setTimeout(() => {
             modal.classList.add('show');
         }, 10);
         
-        // PDF mit PDF.js laden für iOS/Safari, sonst iframe verwenden
-        if (isIOS || isSafari) {
-            pdfIframe.style.display = 'none';
-            pdfJsContainer.style.display = 'block';
-            
-            if (!pdfJsContainer.hasAttribute('data-loaded')) {
-                loadPdfWithPdfJs('assets/pdf/Lebenslauf_AstridKraft.pdf', pdfJsContainer);
-                pdfJsContainer.setAttribute('data-loaded', 'true');
-            }
-        } else {
-            pdfIframe.style.display = 'block';
-            pdfJsContainer.style.display = 'none';
+        // PDF immer mit PDF.js laden (für alle Browser)
+        pdfIframe.style.display = 'none';
+        pdfJsContainer.style.display = 'block';
+        
+        if (!pdfJsContainer.hasAttribute('data-loaded')) {
+            loadPdfWithPdfJs('assets/pdf/Lebenslauf_AstridKraft.pdf', pdfJsContainer);
+            pdfJsContainer.setAttribute('data-loaded', 'true');
         }
     });
     
     // PDF mit PDF.js laden
     function loadPdfWithPdfJs(url, container) {
-        // PDF laden
+        container.innerHTML = '<p style="padding:2rem; text-align:center;">PDF wird geladen...</p>';
+        
         const loadingTask = pdfjsLib.getDocument(url);
         loadingTask.promise.then(function(pdf) {
-            // Anzahl der Seiten
-            const numPages = pdf.numPages;
-            
-            // Container leeren
             container.innerHTML = '';
             
-            // Für jede Seite
-            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                // Seite laden
+            // Für bessere Darstellung: Canvas stylen
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 pdf.getPage(pageNum).then(function(page) {
-                    // Skalierung für die Anzeige
-                    const viewport = page.getViewport({ scale: 1.0 });
+                    const viewport = page.getViewport({ scale: 1.2 }); // Etwas größer
                     
-                    // Canvas für die Seite erstellen
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
+                    canvas.style.width = '100%';
+                    canvas.style.height = 'auto';
+                    canvas.style.marginBottom = '10px';
+                    canvas.style.border = '1px solid #ccc';
+                    canvas.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
                     
-                    // Seitencontainer erstellen
                     const pageContainer = document.createElement('div');
                     pageContainer.className = 'pdf-page';
                     pageContainer.appendChild(canvas);
                     container.appendChild(pageContainer);
                     
-                    // Seite rendern
-                    const renderContext = {
+                    page.render({
                         canvasContext: context,
                         viewport: viewport
-                    };
-                    
-                    page.render(renderContext);
+                    });
                 });
             }
+        }).catch(function(error) {
+            container.innerHTML = `<p style="padding:2rem; text-align:center; color:red;">
+                Fehler beim Laden der PDF: ${error.message || error}<br>
+                <a href="assets/pdf/Lebenslauf_AstridKraft.pdf" target="_blank" style="color:blue;">PDF direkt öffnen</a>
+            </p>`;
         });
     }
     
-    // Modal schließen, wenn auf das X geklickt wird
-    closeBtn.addEventListener('click', function() {
-        closeModal();
-    });
-    
-    // Modal schließen, wenn außerhalb des Inhalts geklickt wird
+    // Modal schließen
+    closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeModal();
-        }
+        if (e.target === modal) closeModal();
     });
-    
-    // Modal schließen, wenn ESC gedrückt wird
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
-            closeModal();
-        }
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
     });
     
-    // Funktion zum Schließen des Modals
     function closeModal() {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
-            document.body.style.overflow = 'auto'; // Scrollen wieder erlauben
-        }, 300); // Entspricht der Übergangszeit in CSS
+            document.body.style.overflow = 'auto';
+        }, 300);
     }
     
-    // Download-Funktion mit iOS-Anpassung
+    // Download-Funktion - OHNE neues Fenster!
     downloadBtn.addEventListener('click', function(e) {
         e.preventDefault();
         
+        // iOS-Hinweis anzeigen
         if (isIOS || isSafari) {
-            // Für iOS/Safari: Hinweis anzeigen und Link öffnen
-            const downloadHint = document.getElementById('ios-download-hint');
-            downloadHint.style.display = 'block';
-            
-            // Link in neuem Tab öffnen
-            window.open('assets/pdf/Lebenslauf_AstridKraft.pdf', '_blank');
-            
-            // Hinweis nach 5 Sekunden ausblenden
+            iosHint.style.display = 'block';
             setTimeout(() => {
-                downloadHint.style.display = 'none';
+                iosHint.style.display = 'none';
             }, 5000);
-        } else {
-            // Für andere Browser: Direkter Download
-            const link = document.createElement('a');
-            link.href = 'assets/pdf/Lebenslauf_AstridKraft.pdf';
-            link.download = 'Lebenslauf_AstridKraft.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
+        
+        // Download ohne neues Fenster
+        const link = document.createElement('a');
+        link.href = 'assets/pdf/Lebenslauf_AstridKraft.pdf';
+        link.download = 'Lebenslauf_AstridKraft.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     });
 });
