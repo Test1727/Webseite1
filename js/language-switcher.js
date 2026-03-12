@@ -1,3 +1,6 @@
+alert('language-switcher.js wurde geladen!');
+console.log('Test');
+
 // JavaScript für den Sprachumschalter
 document.addEventListener('DOMContentLoaded', function() {
     // Lade die Übersetzungen
