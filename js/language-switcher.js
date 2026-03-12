@@ -342,9 +342,6 @@ const translations = {
 }
 };
 
-
-
-
     
     // Initialer Aufruf
     updatePageLanguage();
